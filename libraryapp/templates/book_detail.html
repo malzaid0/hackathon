@@ -1,0 +1,35 @@
+{% extends "base.html" %}
+
+{% block title %}Detail{% endblock title %}
+
+{% block content %}
+
+<br>
+<div class="card">
+  <h5 class="card-header">Restaurant Info</h5>
+  {% if book.img %}
+    <img class="card-img-top" src="{{book.img.url}}" alt="">
+  {% endif %}
+  <div class="card-body">
+    <h5 class="card-title">{{book.name}}</h5>
+    <p class="card-text">{{book.author}}</p>
+    <p class="card-text">Opening Time: {{book.isbn}}</p>
+    <p class="card-text">Closing Time: {{book.release_year}}</p>
+      <h5 class="card-title">Items:</h5>
+{#      {% for item in items %}#}
+{#          <p class="card-text">{{item.name}} - {{ item.description }} => {{ item.price }}</p>#}
+{#      {% endfor %}#}
+    <div class="row text-center">
+{#        <div class="col-md-4">#}
+{#            <a href="{% url 'restaurant-update' restaurant.id %}" class="btn btn-outline-primary btn-block">Update</a>#}
+{#        </div>#}
+{#        <div class="col-md-4">#}
+{#            <a href="{% url 'restaurant-delete' restaurant.id %}" class="btn btn-outline-danger btn-block">Delete</a>#}
+{#        </div>#}
+{#        <div class="col-md-4">#}
+{#            <a href="{% url 'item-create' restaurant.id %}" class="btn btn-outline-primary btn-block">Create Item</a>#}
+{#        </div>#}
+    </div>
+  </div>
+</div>
+{% endblock content %}

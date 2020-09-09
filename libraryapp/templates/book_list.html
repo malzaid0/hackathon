@@ -1,0 +1,28 @@
+{% extends "base.html" %}
+
+{% block title %}List{% endblock title %}
+
+{% block content %}
+<br>
+<div class="row">
+    {% for book in books %}
+    <div class="col-md-4">
+        <div class="card my-card">
+          {% if book.img %}
+            <img class="card-img-top" src="{{book.img.url}}" alt="">
+          {% endif %}
+          <div class="card-body">
+            <h5 class="card-title">{{book.name}}</h5>
+            <p class="card-text">{{book.author}}</p>
+          </div>
+          <ul class="list-group list-group-flush">
+            <li class="list-group-item text-center">
+                <a href="{% url 'book-detail' book.id %}" class="btn btn-outline-dark">View</a>
+            </li>
+          </ul>
+        </div>
+    </div>
+    {% endfor %}
+</div>
+{% endblock content %}
+
