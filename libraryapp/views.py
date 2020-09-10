@@ -13,6 +13,8 @@ BOOK
 
 
 def book_list(request):
+    if not request.user.is_authenticated:
+        return redirect("no-access")
     books = Book.objects.all()
     query = request.GET.get('search_term')
     if query:
@@ -28,6 +30,8 @@ def book_list(request):
 
 
 def book_detail(request, book_id):
+    if not request.user.is_authenticated:
+        return redirect("no-access")
     book = Book.objects.get(id=book_id)
     genres = Genre.objects.filter(book=book)
     borrows = BookBorrow.objects.filter(book=book)
@@ -146,7 +150,7 @@ def return_book(request, book_id):
     borrow = BookBorrow.objects.filter(book=book)
     last_borrow = borrow[len(borrow) - 1]
     user = last_borrow.user
-    if not (request.user.is_staff or request.user == user):
+    if not request.user.is_staff:
         return redirect("no-access")
     last_borrow.return_time = datetime.datetime.now()
     last_borrow.save()

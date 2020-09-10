@@ -44,7 +44,7 @@
   {% endif %}
     <div class="row text-center">
         {% if book.available %}
-            {% if request.user.is_authenticated %}
+            {% if request.user.is_staff %}
                 <div class="col-md-4">
                     <a href="{% url 'book-borrow' book.id %}" class="btn btn-outline-primary btn-block">Borrow</a>
                 </div>
@@ -52,7 +52,7 @@
         {% endif %}
         {% if current_borrow %}
             {% for borrow in current_borrow %}
-                {% if request.user.is_staff or request.user == borrow.user %}
+                {% if request.user.is_staff %}
                     <div class="col-md-4">
                         <a href="{% url 'book-return' book.id %}" class="btn btn-outline-info btn-block">Return</a>
                     </div>
