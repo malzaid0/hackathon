@@ -4,6 +4,7 @@ from django.contrib.auth import login, authenticate, logout
 from .models import Book, Genre, BookBorrow
 from django.contrib.auth.models import User
 from django.db.models import Q
+from django.core.mail import send_mail
 import datetime
 
 
@@ -143,6 +144,13 @@ def signup(request):
 
             user.set_password(user.password)
             user.save()
+            send_mail(
+                'Welcome to the club!',
+                'You are a member now!!',
+                '3a1a3f93e1-d2fae3@inbox.mailtrap.io',
+                [user.email],
+                fail_silently=False,
+            )
 
             login(request, user)
             return redirect("book-list")
