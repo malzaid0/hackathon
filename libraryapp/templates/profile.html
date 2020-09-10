@@ -1,0 +1,31 @@
+{% extends "base.html" %}
+
+{% block title %}Detail{% endblock title %}
+
+{% block content %}
+
+<br>
+<div class="card">
+  <h5 class="card-header">Restaurant Info</h5>
+  <div class="card-body">
+    <h5 class="card-title">{{user.username}}</h5>
+    <p class="card-text">{{user.first_name}}</p>
+    <p class="card-text">Opening Time: {{user.last_name}}</p>
+    <p class="card-text">Closing Time: {{user.email}}</p>
+      {% if borrows %}
+          <h3>Books History</h3>
+          {% for borrow in borrows %}
+              <p class="card-text">{{borrow.book.name}}</p>
+          {% endfor %}
+      {% endif %}
+
+      {% if current_borrow %}
+          <h3>Currently holding</h3>
+          {% for borrow in current_borrow %}
+              <p class="card-text">{{borrow.book.name}}</p>
+          {% endfor %}
+      {% endif %}
+    </div>
+  </div>
+</div>
+{% endblock content %}

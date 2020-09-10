@@ -18,9 +18,11 @@
       <li class="nav-item">
         <a class="nav-link" href="{% url 'signout' %}">Signout</a>
       </li>
+        {% if request.user.is_authenticated %}
         <li class="nav-item">
-        <a class="nav-link" href="{% url 'signout' %}">{{ user.username }}</a>
+        <a class="nav-link" href="{% url 'profile' user.id %}">{{ user.username }}</a>
       </li>
+        {% endif %}
     </ul>
 
     <form class="form-inline my-2 my-lg-0" action="{% url "book-list" %}">

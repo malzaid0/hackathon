@@ -35,6 +35,8 @@ urlpatterns = [
     path('books/detail/<int:book_id>/users', views.user_list, name='users-list'),
     path('books/detail/<int:book_id>/users/<int:user_id>/', views.borrow_book_to_user, name='borrow-to-user'),
 
+    path('users/<int:user_id>/', views.profile_detail, name='profile'),
+
     path('signup/', views.signup, name='signup'),
     path('signin/', views.signin, name='signin'),
     path('signout/', views.signout, name='signout'),

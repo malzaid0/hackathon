@@ -24,6 +24,17 @@ def create_book(request):
     }
     return render(request, 'create_book.html', context)
 
+def profile_detail(request, user_id):
+    user = User.objects.get(id=user_id)
+    borrows = BookBorrow.objects.filter(user=user)
+    current_borrow = borrows.filter(return_time=None)
+    context = {
+        "user": user,
+        "borrows": borrows,
+        "current_borrow": current_borrow,
+    }
+    return render(request, 'profile.html', context)
+
 
 def borrow_book(request, book_id):
     book = Book.objects.get(id=book_id)
