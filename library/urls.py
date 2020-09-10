@@ -27,6 +27,14 @@ urlpatterns = [
 
     path('books/create/', views.create_book, name='book-create'),
 
+    path('genre/create/', views.create_genre, name='genre-create'),
+    path('genre/list/', views.genre_list, name='genre-list'),
+
+    path('books/detail/<int:book_id>/borrow', views.borrow_book, name='book-borrow'),
+    path('books/detail/<int:book_id>/return', views.return_book, name='book-return'),
+    path('books/detail/<int:book_id>/users', views.user_list, name='users-list'),
+    path('books/detail/<int:book_id>/users/<int:user_id>/', views.borrow_book_to_user, name='borrow-to-user'),
+
     path('signup/', views.signup, name='signup'),
     path('signin/', views.signin, name='signin'),
     path('signout/', views.signout, name='signout'),

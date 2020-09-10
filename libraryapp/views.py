@@ -1,8 +1,10 @@
 from django.shortcuts import render, redirect
 from .forms import SignupForm, SigninForm, BookForm, GenreForm
 from django.contrib.auth import login, authenticate, logout
-from .models import Book, Genre
+from .models import Book, Genre, BookBorrow
+from django.contrib.auth.models import User
 from django.db.models import Q
+import datetime
 
 
 # Create your views here.
@@ -14,11 +16,79 @@ def create_book(request):
             book = form.save(commit=False)
             book.added_by = request.user
             book.save()
+            form.save_m2m()
             return redirect('book-list')
     context = {
         "form": form,
     }
     return render(request, 'create_book.html', context)
+
+
+def borrow_book(request, book_id):
+    book = Book.objects.get(id=book_id)
+    borrow = BookBorrow(book=book, user=request.user)
+    borrow.save()
+    book.available = False
+    book.save()
+    return redirect(book)
+
+def borrow_book_to_user(request, book_id, user_id):
+    book = Book.objects.get(id=book_id)
+    user = User.objects.get(id=user_id)
+    borrow = BookBorrow(book=book, user=user)
+    borrow.save()
+    book.available = False
+    book.save()
+    return redirect(book)
+
+def user_list(request, book_id):
+    users = User.objects.all()
+    query = request.GET.get('search_term')
+    if query:
+        users = users.filter(
+            Q(name__icontains=query) |
+            Q(first_name__icontains=query) |
+            Q(last_name__icontains=query) |
+            Q(email__icontains=query)
+        ).distinct()
+    context = {
+        "users": users,
+        "book": book_id,
+    }
+    return render(request, 'user_list.html', context)
+
+
+
+def return_book(request, book_id):
+    book = Book.objects.get(id=book_id)
+    borrow = BookBorrow.objects.filter(book=book)
+    last_borrow = borrow[len(borrow) - 1]
+    last_borrow.return_time = datetime.datetime.now()
+    last_borrow.save()
+    book.available = True
+    book.save()
+    return redirect(book)
+
+
+def create_genre(request):
+    form = GenreForm()
+    if request.method == "POST":
+        form = GenreForm(request.POST)
+        if form.is_valid():
+            form.save()
+            return redirect('genre-list')
+    context = {
+        "form": form,
+    }
+    return render(request, 'create_genre.html', context)
+
+
+def genre_list(request):
+    genres = Genre.objects.all()
+    context = {
+        "genres": genres
+    }
+    return render(request, 'genre_list.html', context)
 
 
 def book_list(request):
@@ -44,8 +114,12 @@ def book_list(request):
 
 def book_detail(request, book_id):
     book = Book.objects.get(id=book_id)
+    genres = Genre.objects.filter(book=book)
+    borrows = BookBorrow.objects.filter(book=book)
     context = {
         "book": book,
+        "genres": genres,
+        "borrows": borrows,
     }
     return render(request, 'book_detail.html', context)
 
@@ -71,7 +145,7 @@ def signup(request):
             user.save()
 
             login(request, user)
-            return redirect("signin")
+            return redirect("book-list")
     context = {
         "form": form,
     }
@@ -90,7 +164,7 @@ def signin(request):
             auth_user = authenticate(username=username, password=password)
             if auth_user is not None:
                 login(request, auth_user)
-                return redirect('signin')
+                return redirect('book-list')
     context = {
         "form": form
     }

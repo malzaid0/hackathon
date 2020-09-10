@@ -1,0 +1,20 @@
+{% extends "base.html" %}
+
+{% block title %}List{% endblock title %}
+
+{% block content %}
+<br>
+<div class="row">
+    {% for user in users %}
+    <div class="col-md-4">
+        <div class="card my-card">
+          <div class="card-body">
+              <a href="{% url "borrow-to-user" book_id=book user_id=user.id %}">
+                <h5 class="card-title">{{user.username}}</h5>
+              </a>
+          </div>
+        </div>
+    </div>
+    {% endfor %}
+</div>
+{% endblock content %}

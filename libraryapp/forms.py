@@ -12,7 +12,11 @@ class GenreForm(forms.ModelForm):
 class BookForm(forms.ModelForm):
     class Meta:
         model = Book
-        exclude = ["added_by", "genre"]
+        exclude = ["added_by", "available", ]
+
+        widgets = {
+            "genre": forms.CheckboxSelectMultiple(),
+        }
 
 
 class SignupForm(forms.ModelForm):
