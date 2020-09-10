@@ -1,16 +1,19 @@
 from django.shortcuts import render, redirect
-from .forms import SignupForm, SigninForm, BookForm, GenreForm
 from django.contrib.auth import login, authenticate, logout
-from .models import Book, Genre, BookBorrow
 from django.contrib.auth.models import User
 from django.db.models import Q
 from django.core.mail import send_mail
+
+from .forms import SignupForm, SigninForm, BookForm, GenreForm
+from .models import Book, Genre, BookBorrow
+
 import datetime
 
 """
 BOOK
 """
 
+# Maybe use different apps OR create multiple view files
 
 def book_list(request):
     if not request.user.is_authenticated:
@@ -33,11 +36,16 @@ def book_detail(request, book_id):
     if not request.user.is_authenticated:
         return redirect("no-access")
     book = Book.objects.get(id=book_id)
+    # Just use the field
     genres = Genre.objects.filter(book=book)
+
+    # Use related name
     borrows = BookBorrow.objects.filter(book=book)
     current_borrow = borrows.filter(return_time=None)
     context = {
         "book": book,
+        
+        # Will be useless later
         "genres": genres,
         "borrows": borrows,
         "current_borrow": current_borrow,
@@ -82,7 +90,10 @@ def profile_detail(request, user_id):
     user = User.objects.get(id=user_id)
     if not request.user == user:
         return redirect("no-access")
+
+    # Use related name
     borrows = BookBorrow.objects.filter(user=user)
+
     current_borrow = borrows.filter(return_time=None)
     context = {
         "user": user,
@@ -146,14 +157,15 @@ def user_list(request, book_id):
 
 
 def return_book(request, book_id):
-    book = Book.objects.get(id=book_id)
-    borrow = BookBorrow.objects.filter(book=book)
-    last_borrow = borrow[len(borrow) - 1]
-    user = last_borrow.user
+    last_borrow = Book.objects.get(id=book_id).history.last()
+
     if not request.user.is_staff:
         return redirect("no-access")
+
     last_borrow.return_time = datetime.datetime.now()
     last_borrow.save()
+    
+    book = last_borrow.book
     book.available = True
     book.save()
     return redirect(book)

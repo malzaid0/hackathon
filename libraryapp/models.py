@@ -16,9 +16,13 @@ class Book(models.Model):
     name = models.CharField(max_length=150)
     author = models.CharField(max_length=100)
     release_year = models.PositiveSmallIntegerField(
-        validators=[MaxValueValidator(datetime.datetime.now().year), MinValueValidator(500)])
+        validators=[
+            MaxValueValidator(datetime.datetime.now().year),
+            MinValueValidator(500)
+        ]
+    )
     isbn = models.CharField(max_length=13, unique=True)
-    genre = models.ManyToManyField(Genre)
+    genres = models.ManyToManyField(Genre, related_name='books')
     added_by = models.ForeignKey(User, on_delete=models.DO_NOTHING)
     img = models.ImageField()
     available = models.BooleanField(default=True)
@@ -31,7 +35,7 @@ class Book(models.Model):
 
 
 class BookBorrow(models.Model):
-    book = models.ForeignKey(Book, on_delete=models.DO_NOTHING)
-    user = models.ForeignKey(User, on_delete=models.DO_NOTHING)
+    book = models.ForeignKey(Book, on_delete=models.DO_NOTHING, related_name='history')
+    user = models.ForeignKey(User, on_delete=models.DO_NOTHING, related_name='history')
     borrow_time = models.DateTimeField(auto_now_add=True)
     return_time = models.DateTimeField(null=True, blank=True)
