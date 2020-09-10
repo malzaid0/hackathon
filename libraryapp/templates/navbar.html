@@ -1,26 +1,37 @@
 <nav class="navbar navbar-expand-lg navbar-dark bg-dark">
-  <a class="navbar-brand" href="{% url 'book-list' %}">RestaurantHUB</a>
+  <a class="navbar-brand" href="{% url 'book-list' %}">Library</a>
   <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarSupportedContent" aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
     <span class="navbar-toggler-icon"></span>
   </button>
 
   <div class="collapse navbar-collapse" id="navbarSupportedContent">
     <ul class="navbar-nav mr-auto">
+    {% if request.user.is_staff %}
       <li class="nav-item">
-        <a class="nav-link" href="{% url 'book-create' %}">Create Restaurant</a>
+        <a class="nav-link" href="{% url 'book-create' %}">Create Book</a>
       </li>
+        <li class="nav-item">
+        <a class="nav-link" href="{% url 'genre-create' %}">Create Genre</a>
+      </li>
+        <li class="nav-item">
+        <a class="nav-link" href="{% url 'genre-list' %}">Genres</a>
+      </li>
+    {% endif %}
+    {% if not request.user.is_authenticated %}
       <li class="nav-item">
         <a class="nav-link" href="{% url 'signup' %}">Signup</a>
       </li>
       <li class="nav-item">
         <a class="nav-link" href="{% url 'signin' %}">Signin</a>
       </li>
+    {% endif %}
+        {% if request.user.is_authenticated %}
       <li class="nav-item">
         <a class="nav-link" href="{% url 'signout' %}">Signout</a>
       </li>
-        {% if request.user.is_authenticated %}
+
         <li class="nav-item">
-        <a class="nav-link" href="{% url 'profile' user.id %}">{{ user.username }}</a>
+        <a class="nav-link" href="{% url 'profile' user.id %}">Your Profile</a>
       </li>
         {% endif %}
     </ul>

@@ -6,44 +6,70 @@
 
 <br>
 <div class="card">
-  <h5 class="card-header">Restaurant Info</h5>
+  <h5 class="card-header">Book Info</h5>
   {% if book.img %}
     <img class="card-img-top" src="{{book.img.url}}" alt="">
   {% endif %}
   <div class="card-body">
     <h5 class="card-title">{{book.name}}</h5>
-    <p class="card-text">{{book.author}}</p>
-    <p class="card-text">Opening Time: {{book.isbn}}</p>
-    <p class="card-text">Closing Time: {{book.release_year}}</p>
+    <p class="card-text">Author: {{book.author}}</p>
+    <p class="card-text">ISBN: {{book.isbn}}</p>
+    <p class="card-text">Release Year: {{book.release_year}}</p>
       {% if book.available %}
-          <p class="card-text">Available</p>
+          <h1 class="card-text">Available</h1>
       {% endif %}
-      <h5 class="card-title">Items:</h5>
+      <h3 class="card-title">Genres:</h3>
       {% for genre in genres %}
           <p class="card-text">{{genre.name}}</p>
       {% endfor %}
+  {% if request.user.is_staff %}
+    <table class="table table-striped table-dark">
+      <thead>
+        <tr>
+          <th scope="col">Username</th>
+          <th scope="col">Borrowed On</th>
+          <th scope="col">Returned On</th>
+        </tr>
+      </thead>
+      <tbody>
+          {% for borrow in borrows %}
+            <tr>
+              <th scope="row">{{borrow.user.username}}</th>
+              <td>{{borrow.borrow_time}}</td>
+              <td>{{borrow.return_time}}</td>
+            </tr>
+          {% endfor %}
+      </tbody>
+    </table>
+  {% endif %}
     <div class="row text-center">
-        <div class="col-md-4">
-            <a href="{% url 'book-borrow' book.id %}" class="btn btn-outline-primary btn-block">Borrow</a>
-        </div>
-
-        <div class="col-md-4">
-            <a href="{% url 'book-return' book.id %}" class="btn btn-outline-danger btn-block">Return</a>
-        </div>
-
-        <div class="col-md-4">
-            <a href="{% url 'users-list' book.id %}" class="btn btn-outline-danger btn-block">Borrow to User</a>
-        </div>
-{#        <div class="col-md-4">#}
-{#            <a href="{% url 'item-create' restaurant.id %}" class="btn btn-outline-primary btn-block">Create Item</a>#}
-{#        </div>#}
-         <div>
-            {% for borrow in borrows %}
-                <p class="card-text">{{borrow.user.username}}</p>
-                <p class="card-text">Opening Time: {{borrow.borrow_time}}</p>
-                <p class="card-text">Closing Time: {{borrow.return_time}}</p>
+        {% if book.available %}
+            {% if request.user.is_authenticated %}
+                <div class="col-md-4">
+                    <a href="{% url 'book-borrow' book.id %}" class="btn btn-outline-primary btn-block">Borrow</a>
+                </div>
+            {% endif %}
+        {% endif %}
+        {% if current_borrow %}
+            {% for borrow in current_borrow %}
+                {% if request.user.is_staff or request.user == borrow.user %}
+                    <div class="col-md-4">
+                        <a href="{% url 'book-return' book.id %}" class="btn btn-outline-info btn-block">Return</a>
+                    </div>
+                {% endif %}
             {% endfor %}
-        </div>
+        {% endif %}
+
+        {% if request.user.is_staff %}
+            {% if book.available %}
+                <div class="col-md-4">
+                    <a href="{% url 'users-list' book.id %}" class="btn btn-outline-success btn-block">Borrow to User</a>
+                </div>
+            {% endif %}
+            <div class="col-md-4">
+                <a href="{% url 'book-delete' book.id %}" class="btn btn-outline-danger btn-block">Delete Book</a>
+            </div>
+        {% endif %}
     </div>
   </div>
 </div>

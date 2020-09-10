@@ -4,7 +4,12 @@
 
 {% block content %}
 <br>
+    <form class="form-inline my-3 my-lg-3" action="{% url "users-list" book %}">
+      <input class="form-control mr-sm-2" type="text" name='search_term' placeholder="Search for a user">
+      <button class="btn btn-outline-success my-2 my-sm-0" type="submit">Search</button>
+    </form>
 <div class="row">
+
     {% for user in users %}
     <div class="col-md-4">
         <div class="card my-card">

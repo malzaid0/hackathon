@@ -7,9 +7,43 @@ from django.db.models import Q
 from django.core.mail import send_mail
 import datetime
 
+"""
+BOOK
+"""
 
-# Create your views here.
+
+def book_list(request):
+    books = Book.objects.all()
+    query = request.GET.get('search_term')
+    if query:
+        books = books.filter(
+            Q(name__icontains=query) |
+            Q(isbn__icontains=query) |
+            Q(genre__name__icontains=query)
+        ).distinct()
+    context = {
+        "books": books
+    }
+    return render(request, 'book_list.html', context)
+
+
+def book_detail(request, book_id):
+    book = Book.objects.get(id=book_id)
+    genres = Genre.objects.filter(book=book)
+    borrows = BookBorrow.objects.filter(book=book)
+    current_borrow = borrows.filter(return_time=None)
+    context = {
+        "book": book,
+        "genres": genres,
+        "borrows": borrows,
+        "current_borrow": current_borrow,
+    }
+    return render(request, 'book_detail.html', context)
+
+
 def create_book(request):
+    if not request.user.is_staff:
+        return redirect("no-access")
     form = BookForm()
     if request.method == "POST":
         form = BookForm(request.POST, request.FILES)
@@ -24,8 +58,26 @@ def create_book(request):
     }
     return render(request, 'create_book.html', context)
 
+
+def book_delete(request, book_id):
+    if not request.user.is_staff:
+        return redirect("no-access")
+    book = Book.objects.get(id=book_id)
+    book.delete()
+    return redirect('book-list')
+
+
+############################################################################
+
+"""
+PROFILE
+"""
+
+
 def profile_detail(request, user_id):
     user = User.objects.get(id=user_id)
+    if not request.user == user:
+        return redirect("no-access")
     borrows = BookBorrow.objects.filter(user=user)
     current_borrow = borrows.filter(return_time=None)
     context = {
@@ -36,16 +88,32 @@ def profile_detail(request, user_id):
     return render(request, 'profile.html', context)
 
 
+############################################################################
+
+"""
+BORROW AND RETURN
+"""
+
+
 def borrow_book(request, book_id):
+    if not request.user.is_authenticated:
+        return redirect("no-access")
     book = Book.objects.get(id=book_id)
+    if not book.available:
+        return redirect("no-access")
     borrow = BookBorrow(book=book, user=request.user)
     borrow.save()
     book.available = False
     book.save()
     return redirect(book)
 
+
 def borrow_book_to_user(request, book_id, user_id):
+    if not request.user.is_staff:
+        return redirect("no-access")
     book = Book.objects.get(id=book_id)
+    if not book.available:
+        return redirect("no-access")
     user = User.objects.get(id=user_id)
     borrow = BookBorrow(book=book, user=user)
     borrow.save()
@@ -53,12 +121,15 @@ def borrow_book_to_user(request, book_id, user_id):
     book.save()
     return redirect(book)
 
+
 def user_list(request, book_id):
+    if not request.user.is_staff:
+        return redirect("no-access")
     users = User.objects.all()
     query = request.GET.get('search_term')
     if query:
         users = users.filter(
-            Q(name__icontains=query) |
+            Q(username__icontains=query) |
             Q(first_name__icontains=query) |
             Q(last_name__icontains=query) |
             Q(email__icontains=query)
@@ -70,11 +141,13 @@ def user_list(request, book_id):
     return render(request, 'user_list.html', context)
 
 
-
 def return_book(request, book_id):
     book = Book.objects.get(id=book_id)
     borrow = BookBorrow.objects.filter(book=book)
     last_borrow = borrow[len(borrow) - 1]
+    user = last_borrow.user
+    if not (request.user.is_staff or request.user == user):
+        return redirect("no-access")
     last_borrow.return_time = datetime.datetime.now()
     last_borrow.save()
     book.available = True
@@ -82,7 +155,16 @@ def return_book(request, book_id):
     return redirect(book)
 
 
+############################################################################
+
+"""
+GENRE
+"""
+
+
 def create_genre(request):
+    if not request.user.is_staff:
+        return redirect("no-access")
     form = GenreForm()
     if request.method == "POST":
         form = GenreForm(request.POST)
@@ -96,6 +178,8 @@ def create_genre(request):
 
 
 def genre_list(request):
+    if not request.user.is_staff:
+        return redirect("no-access")
     genres = Genre.objects.all()
     context = {
         "genres": genres
@@ -103,47 +187,11 @@ def genre_list(request):
     return render(request, 'genre_list.html', context)
 
 
-def book_list(request):
-    books = Book.objects.all()
-    query = request.GET.get('search_term')
-    if query:
-        try:
-            books = books.filter(
-                Q(name__icontains=query) |
-                Q(isbn__exact=int(query)) |
-                Q(genre__name__icontains=query)
-            ).distinct()
-        except:
-            books = books.filter(
-                Q(name__icontains=query) |
-                Q(genre__name__icontains=query)
-            ).distinct()
-    context = {
-        "books": books
-    }
-    return render(request, 'book_list.html', context)
+############################################################################
 
-
-def book_detail(request, book_id):
-    book = Book.objects.get(id=book_id)
-    genres = Genre.objects.filter(book=book)
-    borrows = BookBorrow.objects.filter(book=book)
-    context = {
-        "book": book,
-        "genres": genres,
-        "borrows": borrows,
-    }
-    return render(request, 'book_detail.html', context)
-
-
-def book_search(request):
-    if request.method == "POST":
-        search_term = request.POST.get("searchTerm")
-        books = Book.objects.filter(name__contains=search_term)
-        context = {
-            "search_result": books,
-        }
-        return render(request, "search_result.html", context)
+"""
+AUTHENTICATION
+"""
 
 
 def signup(request):
@@ -152,7 +200,6 @@ def signup(request):
         form = SignupForm(request.POST)
         if form.is_valid():
             user = form.save(commit=False)
-
             user.set_password(user.password)
             user.save()
             send_mail(
@@ -162,7 +209,6 @@ def signup(request):
                 [user.email],
                 fail_silently=False,
             )
-
             login(request, user)
             return redirect("book-list")
     context = {
@@ -176,10 +222,8 @@ def signin(request):
     if request.method == 'POST':
         form = SigninForm(request.POST)
         if form.is_valid():
-
             username = form.cleaned_data['username']
             password = form.cleaned_data['password']
-
             auth_user = authenticate(username=username, password=password)
             if auth_user is not None:
                 login(request, auth_user)
@@ -193,3 +237,7 @@ def signin(request):
 def signout(request):
     logout(request)
     return redirect("signin")
+
+
+def no_access(request):
+    return render(request, "no_access.html")

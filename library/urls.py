@@ -24,8 +24,8 @@ urlpatterns = [
 
     path('', views.book_list, name='book-list'),
     path('books/detail/<int:book_id>/', views.book_detail, name='book-detail'),
-
     path('books/create/', views.create_book, name='book-create'),
+    path('books/detail/<int:book_id>/delete/', views.book_delete, name='book-delete'),
 
     path('genre/create/', views.create_genre, name='genre-create'),
     path('genre/list/', views.genre_list, name='genre-list'),
@@ -40,6 +40,7 @@ urlpatterns = [
     path('signup/', views.signup, name='signup'),
     path('signin/', views.signin, name='signin'),
     path('signout/', views.signout, name='signout'),
+    path("noaccess/", views.no_access, name="no-access"),
 ]
 if settings.DEBUG:
     urlpatterns += static(settings.STATIC_URL, document_root=settings.STATIC_ROOT)

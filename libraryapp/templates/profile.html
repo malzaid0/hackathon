@@ -6,12 +6,12 @@
 
 <br>
 <div class="card">
-  <h5 class="card-header">Restaurant Info</h5>
+  <h5 class="card-header">User Info</h5>
   <div class="card-body">
-    <h5 class="card-title">{{user.username}}</h5>
-    <p class="card-text">{{user.first_name}}</p>
-    <p class="card-text">Opening Time: {{user.last_name}}</p>
-    <p class="card-text">Closing Time: {{user.email}}</p>
+    <h5 class="card-title">Username: {{user.username}}</h5>
+    <p class="card-text">First Name: {{user.first_name}}</p>
+    <p class="card-text">Last Name: {{user.last_name}}</p>
+    <p class="card-text">Email: {{user.email}}</p>
       {% if borrows %}
           <h3>Books History</h3>
           {% for borrow in borrows %}
