@@ -18,14 +18,17 @@
       </li>
     {% endif %}
     {% if not request.user.is_authenticated %}
-      <li class="nav-item">
-        <a class="nav-link" href="{% url 'signup' %}">Signup</a>
-      </li>
+
       <li class="nav-item">
         <a class="nav-link" href="{% url 'signin' %}">Signin</a>
       </li>
     {% endif %}
         {% if request.user.is_authenticated %}
+            {% if request.user.is_staff %}
+              <li class="nav-item">
+                <a class="nav-link" href="{% url 'signup' %}">Create Member</a>
+              </li>
+            {% endif %}
       <li class="nav-item">
         <a class="nav-link" href="{% url 'signout' %}">Signout</a>
       </li>

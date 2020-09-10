@@ -195,6 +195,8 @@ AUTHENTICATION
 
 
 def signup(request):
+    if not request.user.is_staff:
+        return redirect("no-access")
     form = SignupForm()
     if request.method == 'POST':
         form = SignupForm(request.POST)
